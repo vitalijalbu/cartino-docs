@@ -1,10 +1,11 @@
 ---
 id: model-cart-item
 blueprint: documentation
-title: 'Model: CartItem'
+title: "Model: CartItem"
 updated_by: system
 updated_at: 1738675127
 ---
+
 # Model: CartItem
 
 The CartItem model represents individual products in a shopping cart. Each item tracks quantity, pricing, and customizations.
@@ -31,6 +32,7 @@ CartItem {
 ```
 
 **Key Responsibilities**:
+
 - Track quantity per variant
 - Store price snapshot at add-to-cart time
 - Calculate line item total
@@ -78,21 +80,21 @@ Schema::create('cart_items', function (Blueprint $table) {
 
 ## Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `bigint` | Primary key |
-| `cart_id` | `bigint` | Cart ID (FK) |
-| `product_variant_id` | `bigint` | ProductVariant ID (FK) |
-| `quantity` | `integer` | Quantity ordered |
-| `price` | `decimal` | Unit price (snapshot) |
-| `compare_at_price` | `decimal` | Compare price (snapshot) |
-| `total` | `decimal` | Line total (price × quantity - discount) |
-| `discount` | `decimal` | Discount amount |
-| `discount_id` | `bigint` | Applied discount (FK) |
-| `data` | `json` | Custom data |
-| `notes` | `text` | Customer notes |
-| `created_at` | `timestamp` | Creation time |
-| `updated_at` | `timestamp` | Last update |
+| Property             | Type        | Description                              |
+| -------------------- | ----------- | ---------------------------------------- |
+| `id`                 | `bigint`    | Primary key                              |
+| `cart_id`            | `bigint`    | Cart ID (FK)                             |
+| `product_variant_id` | `bigint`    | ProductVariant ID (FK)                   |
+| `quantity`           | `integer`   | Quantity ordered                         |
+| `price`              | `decimal`   | Unit price (snapshot)                    |
+| `compare_at_price`   | `decimal`   | Compare price (snapshot)                 |
+| `total`              | `decimal`   | Line total (price × quantity - discount) |
+| `discount`           | `decimal`   | Discount amount                          |
+| `discount_id`        | `bigint`    | Applied discount (FK)                    |
+| `data`               | `json`      | Custom data                              |
+| `notes`              | `text`      | Customer notes                           |
+| `created_at`         | `timestamp` | Creation time                            |
+| `updated_at`         | `timestamp` | Last update                              |
 
 ---
 
@@ -149,6 +151,7 @@ class CartItem extends Model
 ```
 
 **Usage**:
+
 ```php
 // Get variant
 $variant = $item->variant;
@@ -202,6 +205,7 @@ public function getTotalWeightAttribute(): float
 ```
 
 **Usage**:
+
 ```php
 $savings = $item->savings; // 20.00
 $onSale = $item->is_on_sale; // true
@@ -344,6 +348,7 @@ GET /api/v1/carts/{cart}/items
 ```
 
 **Response**:
+
 ```json
 {
   "data": [
@@ -375,6 +380,7 @@ POST /api/v1/carts/{cart}/items
 ```
 
 **Request**:
+
 ```json
 {
   "product_variant_id": 245,
@@ -393,6 +399,7 @@ PATCH /api/v1/cart-items/{item}
 ```
 
 **Request**:
+
 ```json
 {
   "quantity": 5

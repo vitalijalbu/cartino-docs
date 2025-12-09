@@ -1,10 +1,11 @@
 ---
 id: model-address
 blueprint: documentation
-title: 'Model: Address'
+title: "Model: Address"
 updated_by: system
 updated_at: 1738675127
 ---
+
 # Model: Address
 
 The Address model stores customer addresses for shipping, billing, and company locations. It supports international addresses with full validation and geocoding capabilities.
@@ -32,6 +33,7 @@ Address {
 ```
 
 **Address Types**:
+
 - **Shipping** - Delivery address
 - **Billing** - Invoice address
 - **Company** - Business address
@@ -94,29 +96,29 @@ Schema::create('addresses', function (Blueprint $table) {
 
 ## Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `bigint` | Primary key |
-| `addressable_type` | `string` | Owner model type |
-| `addressable_id` | `bigint` | Owner model ID |
-| `type` | `string` | Address type |
-| `first_name` | `string` | First name |
-| `last_name` | `string` | Last name |
-| `company` | `string` | Company name |
-| `phone` | `string` | Phone number |
-| `address_line_1` | `string` | Address line 1 |
-| `address_line_2` | `string` | Address line 2 |
-| `city` | `string` | City |
-| `state` | `string` | State/Province |
-| `postal_code` | `string` | Postal code |
-| `country` | `string` | ISO country code |
-| `latitude` | `decimal` | Latitude |
-| `longitude` | `decimal` | Longitude |
-| `tax_id` | `string` | Tax/VAT ID |
-| `is_default` | `boolean` | Default address |
-| `is_verified` | `boolean` | Verified status |
-| `data` | `json` | Custom data |
-| `notes` | `text` | Notes |
+| Property           | Type      | Description      |
+| ------------------ | --------- | ---------------- |
+| `id`               | `bigint`  | Primary key      |
+| `addressable_type` | `string`  | Owner model type |
+| `addressable_id`   | `bigint`  | Owner model ID   |
+| `type`             | `string`  | Address type     |
+| `first_name`       | `string`  | First name       |
+| `last_name`        | `string`  | Last name        |
+| `company`          | `string`  | Company name     |
+| `phone`            | `string`  | Phone number     |
+| `address_line_1`   | `string`  | Address line 1   |
+| `address_line_2`   | `string`  | Address line 2   |
+| `city`             | `string`  | City             |
+| `state`            | `string`  | State/Province   |
+| `postal_code`      | `string`  | Postal code      |
+| `country`          | `string`  | ISO country code |
+| `latitude`         | `decimal` | Latitude         |
+| `longitude`        | `decimal` | Longitude        |
+| `tax_id`           | `string`  | Tax/VAT ID       |
+| `is_default`       | `boolean` | Default address  |
+| `is_verified`      | `boolean` | Verified status  |
+| `data`             | `json`    | Custom data      |
+| `notes`            | `text`    | Notes            |
 
 ---
 
@@ -430,6 +432,7 @@ GET /api/v1/customers/{customer}/addresses
 ```
 
 **Response**:
+
 ```json
 {
   "data": [
@@ -454,6 +457,7 @@ POST /api/v1/customers/{customer}/addresses
 ```
 
 **Request**:
+
 ```json
 {
   "type": "shipping",
