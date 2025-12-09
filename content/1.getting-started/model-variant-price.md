@@ -1,0 +1,720 @@
+---
+id: model-variant-price
+blueprint: documentation
+title: 'Model: VariantPrice'
+updated_by: system
+updated_at: 1738675127
+---
+# Model: VariantPrice
+
+The VariantPrice model manages multi-currency, multi-site, and tiered pricing for product variants. It enables complex pricing strategies including customer group pricing, channel-specific pricing, and bulk discounts.
+
+[TOC]
+
+## Overview
+
+A **VariantPrice** stores pricing information for a ProductVariant in a specific context:
+
+```php
+VariantPrice {
+    product_variant_id: 245
+    site_id: 1
+    channel_id: 2
+    currency: "EUR"
+    price: 49.99
+    compare_at_price: 59.99
+    customer_group_id: null
+    min_quantity: 1
+    max_quantity: null
+}
+```
+
+**Pricing Context**:
+- **Site**: Different prices per market
+- **Channel**: Web vs B2B vs Mobile pricing
+- **Currency**: Multi-currency support
+- **Customer Group**: Wholesale, VIP, Retail
+- **Quantity Tiers**: Volume discounts
+
+---
+
+## Database Schema
+
+```php
+Schema::create('variant_prices', function (Blueprint $table) {
+    $table->id();
+
+    // Variant
+    $table->foreignId('product_variant_id')->constrained()->cascadeOnDelete();
+
+    // Context
+    $table->foreignId('site_id')->nullable()->constrained()->cascadeOnDelete();
+    $table->foreignId('channel_id')->nullable()->constrained()->cascadeOnDelete();
+    $table->string('currency', 3)->default('EUR');
+    $table->foreignId('customer_group_id')->nullable()->constrained()->nullOnDelete();
+
+    // Pricing
+    $table->decimal('price', 15, 2);
+    $table->decimal('compare_at_price', 15, 2)->nullable();
+    $table->decimal('cost', 15, 2)->nullable(); // Cost price (internal)
+
+    // Quantity tiers
+    $table->integer('min_quantity')->default(1);
+    $table->integer('max_quantity')->nullable();
+
+    // Schedule
+    $table->timestamp('starts_at')->nullable();
+    $table->timestamp('ends_at')->nullable();
+
+    // Status
+    $table->boolean('is_active')->default(true);
+
+    // Priority (higher = more specific)
+    $table->integer('priority')->default(0);
+
+    $table->timestamps();
+
+    // Indexes
+    $table->index('product_variant_id');
+    $table->index(['site_id', 'channel_id', 'currency']);
+    $table->index('customer_group_id');
+    $table->index(['starts_at', 'ends_at']);
+    $table->index('is_active');
+
+    // Unique constraint for specific context
+    $table->unique([
+        'product_variant_id',
+        'site_id',
+        'channel_id',
+        'currency',
+        'customer_group_id',
+        'min_quantity'
+    ], 'variant_price_context_unique');
+});
+```
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `bigint` | Primary key |
+| `product_variant_id` | `bigint` | ProductVariant ID (FK) |
+| `site_id` | `bigint` | Site ID (FK, nullable) |
+| `channel_id` | `bigint` | Channel ID (FK, nullable) |
+| `currency` | `string(3)` | Currency code (EUR, USD) |
+| `customer_group_id` | `bigint` | Customer group (FK, nullable) |
+| `price` | `decimal` | Selling price |
+| `compare_at_price` | `decimal` | Original price |
+| `cost` | `decimal` | Cost price (internal) |
+| `min_quantity` | `integer` | Minimum quantity for tier |
+| `max_quantity` | `integer` | Maximum quantity for tier |
+| `starts_at` | `timestamp` | Schedule start |
+| `ends_at` | `timestamp` | Schedule end |
+| `is_active` | `boolean` | Active status |
+| `priority` | `integer` | Priority (higher wins) |
+
+---
+
+## Relationships
+
+```php
+namespace Shopper\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class VariantPrice extends Model
+{
+    protected $fillable = [
+        'product_variant_id',
+        'site_id',
+        'channel_id',
+        'currency',
+        'customer_group_id',
+        'price',
+        'compare_at_price',
+        'cost',
+        'min_quantity',
+        'max_quantity',
+        'starts_at',
+        'ends_at',
+        'is_active',
+        'priority',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'compare_at_price' => 'decimal:2',
+        'cost' => 'decimal:2',
+        'min_quantity' => 'integer',
+        'max_quantity' => 'integer',
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
+        'is_active' => 'boolean',
+        'priority' => 'integer',
+    ];
+
+    // ProductVariant
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    // Site
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
+
+    // Channel
+    public function channel(): BelongsTo
+    {
+        return $this->belongsTo(Channel::class);
+    }
+
+    // Customer Group
+    public function customerGroup(): BelongsTo
+    {
+        return $this->belongsTo(CustomerGroup::class);
+    }
+}
+```
+
+---
+
+## Scopes
+
+```php
+// Active prices
+public function scopeActive($query)
+{
+    return $query->where('is_active', true)
+        ->where(function ($q) {
+            $q->whereNull('starts_at')
+              ->orWhere('starts_at', '<=', now());
+        })
+        ->where(function ($q) {
+            $q->whereNull('ends_at')
+              ->orWhere('ends_at', '>=', now());
+        });
+}
+
+// For specific site
+public function scopeForSite($query, int $siteId)
+{
+    return $query->where(function ($q) use ($siteId) {
+        $q->where('site_id', $siteId)
+          ->orWhereNull('site_id');
+    });
+}
+
+// For specific channel
+public function scopeForChannel($query, int $channelId)
+{
+    return $query->where(function ($q) use ($channelId) {
+        $q->where('channel_id', $channelId)
+          ->orWhereNull('channel_id');
+    });
+}
+
+// For currency
+public function scopeForCurrency($query, string $currency)
+{
+    return $query->where('currency', $currency);
+}
+
+// For customer group
+public function scopeForCustomerGroup($query, ?int $customerGroupId)
+{
+    return $query->where(function ($q) use ($customerGroupId) {
+        $q->where('customer_group_id', $customerGroupId)
+          ->orWhereNull('customer_group_id');
+    });
+}
+
+// For quantity
+public function scopeForQuantity($query, int $quantity)
+{
+    return $query->where('min_quantity', '<=', $quantity)
+        ->where(function ($q) use ($quantity) {
+            $q->whereNull('max_quantity')
+              ->orWhere('max_quantity', '>=', $quantity);
+        });
+}
+
+// Most specific first
+public function scopeOrderBySpecificity($query)
+{
+    return $query->orderByDesc('priority')
+        ->orderByDesc('customer_group_id')
+        ->orderByDesc('channel_id')
+        ->orderByDesc('site_id')
+        ->orderByDesc('min_quantity');
+}
+```
+
+---
+
+## Accessors & Mutators
+
+```php
+// Discount percentage
+public function getDiscountPercentageAttribute(): ?float
+{
+    if (!$this->compare_at_price || $this->compare_at_price <= $this->price) {
+        return null;
+    }
+
+    return round((($this->compare_at_price - $this->price) / $this->compare_at_price) * 100, 2);
+}
+
+// Discount amount
+public function getDiscountAmountAttribute(): float
+{
+    if (!$this->compare_at_price) {
+        return 0;
+    }
+
+    return max(0, $this->compare_at_price - $this->price);
+}
+
+// Is on sale
+public function getIsOnSaleAttribute(): bool
+{
+    return $this->compare_at_price && $this->price < $this->compare_at_price;
+}
+
+// Profit margin
+public function getProfitMarginAttribute(): ?float
+{
+    if (!$this->cost) {
+        return null;
+    }
+
+    return round((($this->price - $this->cost) / $this->price) * 100, 2);
+}
+
+// Is scheduled
+public function getIsScheduledAttribute(): bool
+{
+    return $this->starts_at || $this->ends_at;
+}
+
+// Is currently active
+public function getIsCurrentlyActiveAttribute(): bool
+{
+    if (!$this->is_active) {
+        return false;
+    }
+
+    $now = now();
+
+    if ($this->starts_at && $this->starts_at > $now) {
+        return false;
+    }
+
+    if ($this->ends_at && $this->ends_at < $now) {
+        return false;
+    }
+
+    return true;
+}
+```
+
+---
+
+## Methods
+
+### Get Price for Context
+
+```php
+public static function getPriceFor(
+    int $variantId,
+    ?int $siteId = null,
+    ?int $channelId = null,
+    string $currency = 'EUR',
+    ?int $customerGroupId = null,
+    int $quantity = 1
+): ?self
+{
+    return self::where('product_variant_id', $variantId)
+        ->active()
+        ->forSite($siteId)
+        ->forChannel($channelId)
+        ->forCurrency($currency)
+        ->forCustomerGroup($customerGroupId)
+        ->forQuantity($quantity)
+        ->orderBySpecificity()
+        ->first();
+}
+```
+
+### Get Tiered Prices
+
+```php
+public static function getTieredPrices(
+    int $variantId,
+    ?int $siteId = null,
+    ?int $channelId = null,
+    string $currency = 'EUR',
+    ?int $customerGroupId = null
+): Collection
+{
+    return self::where('product_variant_id', $variantId)
+        ->active()
+        ->forSite($siteId)
+        ->forChannel($channelId)
+        ->forCurrency($currency)
+        ->forCustomerGroup($customerGroupId)
+        ->orderBy('min_quantity')
+        ->get()
+        ->unique('min_quantity');
+}
+```
+
+### Calculate Priority
+
+```php
+public function calculatePriority(): int
+{
+    $priority = 0;
+
+    if ($this->customer_group_id) $priority += 1000;
+    if ($this->channel_id) $priority += 100;
+    if ($this->site_id) $priority += 10;
+    if ($this->min_quantity > 1) $priority += 1;
+
+    return $priority;
+}
+```
+
+---
+
+## Events
+
+```php
+use Shopper\Events\PriceUpdated;
+
+protected static function booted()
+{
+    static::saving(function (VariantPrice $price) {
+        // Auto-calculate priority
+        $price->priority = $price->calculatePriority();
+    });
+
+    static::saved(function (VariantPrice $price) {
+        event(new PriceUpdated($price));
+
+        // Clear variant price cache
+        Cache::forget("variant.{$price->product_variant_id}.prices");
+    });
+}
+```
+
+---
+
+## REST API
+
+### Get Variant Prices
+
+```http
+GET /api/v1/variants/{variant}/prices
+```
+
+**Query Parameters**:
+- `site_id` - Filter by site
+- `channel_id` - Filter by channel
+- `currency` - Filter by currency
+- `customer_group_id` - Filter by customer group
+
+**Response**:
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "site_id": 1,
+      "channel_id": 2,
+      "currency": "EUR",
+      "customer_group_id": null,
+      "price": "49.99",
+      "compare_at_price": "59.99",
+      "discount_percentage": 16.68,
+      "min_quantity": 1,
+      "max_quantity": null,
+      "is_on_sale": true,
+      "is_currently_active": true
+    }
+  ]
+}
+```
+
+### Get Price for Context
+
+```http
+POST /api/v1/variants/{variant}/price/calculate
+```
+
+**Request**:
+```json
+{
+  "site_id": 1,
+  "channel_id": 2,
+  "currency": "EUR",
+  "customer_group_id": null,
+  "quantity": 10
+}
+```
+
+**Response**:
+```json
+{
+  "price": "44.99",
+  "compare_at_price": "49.99",
+  "discount_percentage": 10.00,
+  "currency": "EUR",
+  "min_quantity": 10,
+  "formatted": "€44.99"
+}
+```
+
+### Create/Update Price
+
+```http
+POST /api/v1/variant-prices
+```
+
+**Request**:
+```json
+{
+  "product_variant_id": 245,
+  "site_id": 1,
+  "channel_id": 2,
+  "currency": "EUR",
+  "price": 49.99,
+  "compare_at_price": 59.99,
+  "min_quantity": 1
+}
+```
+
+---
+
+## GraphQL API
+
+### Query Variant Prices
+
+```graphql
+query {
+  productVariant(id: 245) {
+    prices {
+      id
+      price
+      compareAtPrice
+      currency
+      minQuantity
+      maxQuantity
+      isOnSale
+      discountPercentage
+      site {
+        id
+        name
+      }
+      channel {
+        id
+        name
+      }
+      customerGroup {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+### Calculate Price
+
+```graphql
+query {
+  calculatePrice(
+    variantId: 245
+    siteId: 1
+    channelId: 2
+    currency: "EUR"
+    quantity: 10
+  ) {
+    price
+    compareAtPrice
+    discountPercentage
+    formatted
+  }
+}
+```
+
+---
+
+## Practical Examples
+
+### Set Base Price
+
+```php
+use Shopper\Models\ProductVariant;
+
+$variant = ProductVariant::find(245);
+
+// Base price for all contexts
+$variant->prices()->create([
+    'currency' => 'EUR',
+    'price' => 49.99,
+    'compare_at_price' => 59.99,
+    'min_quantity' => 1,
+]);
+```
+
+### Set Tiered Pricing
+
+```php
+// Retail pricing tiers
+$tiers = [
+    ['min' => 1, 'max' => 9, 'price' => 49.99],
+    ['min' => 10, 'max' => 49, 'price' => 44.99],
+    ['min' => 50, 'max' => null, 'price' => 39.99],
+];
+
+foreach ($tiers as $tier) {
+    $variant->prices()->create([
+        'site_id' => 1,
+        'currency' => 'EUR',
+        'price' => $tier['price'],
+        'min_quantity' => $tier['min'],
+        'max_quantity' => $tier['max'],
+    ]);
+}
+```
+
+### Set Customer Group Pricing
+
+```php
+// Wholesale pricing (30% discount)
+$variant->prices()->create([
+    'customer_group_id' => CustomerGroup::where('code', 'wholesale')->first()->id,
+    'currency' => 'EUR',
+    'price' => 34.99,
+    'min_quantity' => 1,
+]);
+
+// VIP pricing (20% discount)
+$variant->prices()->create([
+    'customer_group_id' => CustomerGroup::where('code', 'vip')->first()->id,
+    'currency' => 'EUR',
+    'price' => 39.99,
+    'min_quantity' => 1,
+]);
+```
+
+### Set Multi-Currency Pricing
+
+```php
+$currencies = [
+    'EUR' => 49.99,
+    'USD' => 54.99,
+    'GBP' => 44.99,
+];
+
+foreach ($currencies as $currency => $price) {
+    $variant->prices()->create([
+        'site_id' => 1,
+        'currency' => $currency,
+        'price' => $price,
+        'min_quantity' => 1,
+    ]);
+}
+```
+
+### Scheduled Sale Pricing
+
+```php
+// Black Friday sale
+$variant->prices()->create([
+    'currency' => 'EUR',
+    'price' => 34.99,
+    'compare_at_price' => 49.99,
+    'min_quantity' => 1,
+    'starts_at' => '2025-11-24 00:00:00',
+    'ends_at' => '2025-11-27 23:59:59',
+    'priority' => 9999, // High priority
+]);
+```
+
+### Get Best Price
+
+```php
+use Shopper\Models\VariantPrice;
+
+$customer = auth()->user()->customer;
+
+$price = VariantPrice::getPriceFor(
+    variantId: 245,
+    siteId: 1,
+    channelId: 2,
+    currency: 'EUR',
+    customerGroupId: $customer->customer_group_id,
+    quantity: 10
+);
+
+if ($price) {
+    echo "Price: {$price->price} {$price->currency}";
+    echo "Discount: {$price->discount_percentage}%";
+}
+```
+
+---
+
+## Performance Tips
+
+### 1. Cache Prices
+
+```php
+use Illuminate\Support\Facades\Cache;
+
+$prices = Cache::remember(
+    "variant.{$variantId}.prices.{$siteId}.{$channelId}.{$currency}",
+    now()->addHours(6),
+    fn() => VariantPrice::where('product_variant_id', $variantId)
+        ->active()
+        ->forSite($siteId)
+        ->forChannel($channelId)
+        ->forCurrency($currency)
+        ->get()
+);
+```
+
+### 2. Eager Load Prices
+
+```php
+$variants = ProductVariant::with([
+    'prices' => fn($q) => $q->active()
+        ->forSite($siteId)
+        ->forCurrency($currency)
+])->get();
+```
+
+### 3. Index Optimization
+
+```sql
+-- Composite index for price lookups
+CREATE INDEX idx_variant_prices_lookup
+ON variant_prices(product_variant_id, site_id, channel_id, currency, is_active);
+```
+
+---
+
+## Related Documentation
+
+- [ProductVariant Model](model-product-variant)
+- [CustomerGroup Model](model-customer-group)
+- [Multi-Currency Guide](multi-currency)
+- [Pricing System](pricing-system)
+- [REST API - Pricing](api-pricing)

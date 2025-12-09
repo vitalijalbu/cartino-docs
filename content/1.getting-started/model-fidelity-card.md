@@ -1,0 +1,549 @@
+---
+id: model-fidelity-card
+blueprint: documentation
+title: 'Model: FidelityCard'
+updated_by: system
+updated_at: 1738675127
+---
+# Model: FidelityCard
+
+The FidelityCard model manages customer loyalty cards with points, tiers, rewards, and expiration. It enables comprehensive loyalty programs with earn/burn mechanics and tier-based benefits.
+
+[TOC]
+
+## Overview
+
+A **FidelityCard** tracks customer loyalty:
+
+```php
+FidelityCard {
+    customer_id: 123
+    card_number: "LOYAL-2025-00123"
+    tier: "gold"
+    points_balance: 5420
+    points_lifetime: 12850
+    status: "active"
+    expires_at: "2026-12-31"
+}
+```
+
+**Loyalty Features**:
+- **Points System** - Earn & redeem points
+- **Tiers** - Bronze, Silver, Gold, Platinum
+- **Expiration** - Time-based validity
+- **Rewards** - Point-based benefits
+
+---
+
+## Database Schema
+
+```php
+Schema::create('fidelity_cards', function (Blueprint $table) {
+    $table->id();
+
+    // Customer (one-to-one)
+    $table->foreignId('customer_id')->unique()->constrained()->cascadeOnDelete();
+    $table->foreignId('site_id')->nullable()->constrained()->cascadeOnDelete();
+
+    // Card details
+    $table->string('card_number')->unique();
+    $table->string('barcode')->nullable()->unique();
+    $table->string('qr_code')->nullable();
+
+    // Tier
+    $table->string('tier')->default('bronze'); // bronze, silver, gold, platinum, vip
+    $table->integer('tier_points_required')->default(0);
+
+    // Points
+    $table->integer('points_balance')->default(0);
+    $table->integer('points_lifetime')->default(0);
+    $table->integer('points_pending')->default(0); // Not yet confirmed
+    $table->integer('points_expiring_soon')->default(0);
+
+    // Spending
+    $table->decimal('total_spent', 15, 2)->default(0);
+    $table->integer('orders_count')->default(0);
+
+    // Dates
+    $table->timestamp('issued_at')->useCurrent();
+    $table->timestamp('expires_at')->nullable();
+    $table->timestamp('last_used_at')->nullable();
+    $table->timestamp('tier_achieved_at')->nullable();
+
+    // Status
+    $table->string('status')->default('active'); // active, suspended, expired, cancelled
+
+    // Metadata
+    $table->json('benefits')->nullable(); // Current tier benefits
+    $table->json('data')->nullable();
+    $table->text('notes')->nullable();
+
+    $table->timestamps();
+    $table->softDeletes();
+
+    // Indexes
+    $table->index('customer_id');
+    $table->index('card_number');
+    $table->index('barcode');
+    $table->index('tier');
+    $table->index('status');
+    $table->index('expires_at');
+});
+```
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `bigint` | Primary key |
+| `customer_id` | `bigint` | Customer ID (FK, unique) |
+| `site_id` | `bigint` | Site ID (FK) |
+| `card_number` | `string` | Card number (unique) |
+| `barcode` | `string` | Barcode (unique) |
+| `qr_code` | `string` | QR code data |
+| `tier` | `string` | Loyalty tier |
+| `tier_points_required` | `integer` | Points needed for tier |
+| `points_balance` | `integer` | Current points |
+| `points_lifetime` | `integer` | Total points earned |
+| `points_pending` | `integer` | Pending points |
+| `points_expiring_soon` | `integer` | Expiring points |
+| `total_spent` | `decimal` | Lifetime spending |
+| `orders_count` | `integer` | Total orders |
+| `issued_at` | `timestamp` | Issue date |
+| `expires_at` | `timestamp` | Expiration date |
+| `last_used_at` | `timestamp` | Last use date |
+| `tier_achieved_at` | `timestamp` | Tier achievement date |
+| `status` | `string` | Card status |
+| `benefits` | `json` | Current benefits |
+| `data` | `json` | Custom data |
+| `notes` | `text` | Notes |
+
+---
+
+## Relationships
+
+```php
+namespace Shopper\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class FidelityCard extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'customer_id',
+        'site_id',
+        'card_number',
+        'barcode',
+        'qr_code',
+        'tier',
+        'tier_points_required',
+        'points_balance',
+        'points_lifetime',
+        'points_pending',
+        'points_expiring_soon',
+        'total_spent',
+        'orders_count',
+        'issued_at',
+        'expires_at',
+        'last_used_at',
+        'tier_achieved_at',
+        'status',
+        'benefits',
+        'data',
+        'notes',
+    ];
+
+    protected $casts = [
+        'tier_points_required' => 'integer',
+        'points_balance' => 'integer',
+        'points_lifetime' => 'integer',
+        'points_pending' => 'integer',
+        'points_expiring_soon' => 'integer',
+        'total_spent' => 'decimal:2',
+        'orders_count' => 'integer',
+        'issued_at' => 'datetime',
+        'expires_at' => 'datetime',
+        'last_used_at' => 'datetime',
+        'tier_achieved_at' => 'datetime',
+        'benefits' => 'array',
+        'data' => 'array',
+    ];
+
+    // Customer
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    // Site
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
+
+    // Transactions
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(FidelityTransaction::class);
+    }
+}
+```
+
+---
+
+## Scopes
+
+```php
+// Active cards
+public function scopeActive($query)
+{
+    return $query->where('status', 'active')
+        ->where(function ($q) {
+            $q->whereNull('expires_at')
+              ->orWhere('expires_at', '>', now());
+        });
+}
+
+// By tier
+public function scopeOfTier($query, string $tier)
+{
+    return $query->where('tier', $tier);
+}
+
+// Expiring soon
+public function scopeExpiringSoon($query, int $days = 30)
+{
+    return $query->where('expires_at', '<=', now()->addDays($days))
+        ->where('expires_at', '>', now());
+}
+
+// With points
+public function scopeWithPoints($query, int $minPoints = 1)
+{
+    return $query->where('points_balance', '>=', $minPoints);
+}
+```
+
+---
+
+## Accessors & Mutators
+
+```php
+// Is active
+public function getIsActiveAttribute(): bool
+{
+    if ($this->status !== 'active') {
+        return false;
+    }
+
+    if ($this->expires_at && $this->expires_at < now()) {
+        return false;
+    }
+
+    return true;
+}
+
+// Is expired
+public function getIsExpiredAttribute(): bool
+{
+    return $this->expires_at && $this->expires_at < now();
+}
+
+// Days until expiry
+public function getDaysUntilExpiryAttribute(): ?int
+{
+    if (!$this->expires_at) {
+        return null;
+    }
+
+    return max(0, now()->diffInDays($this->expires_at, false));
+}
+
+// Points value in currency
+public function getPointsValueAttribute(): float
+{
+    $pointsPerCurrency = config('shopper.fidelity.points_per_currency', 100);
+    return $this->points_balance / $pointsPerCurrency;
+}
+
+// Can upgrade tier
+public function getCanUpgradeTierAttribute(): bool
+{
+    $tiers = config('shopper.fidelity.tiers');
+    $currentIndex = array_search($this->tier, array_keys($tiers));
+    $nextTier = array_keys($tiers)[$currentIndex + 1] ?? null;
+
+    if (!$nextTier) {
+        return false;
+    }
+
+    return $this->points_lifetime >= $tiers[$nextTier]['points_required'];
+}
+```
+
+---
+
+## Methods
+
+### Generate Card Number
+
+```php
+public static function generateCardNumber(string $prefix = 'LOYAL'): string
+{
+    do {
+        $number = $prefix . '-' . date('Y') . '-' . str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT);
+    } while (self::where('card_number', $number)->exists());
+
+    return $number;
+}
+```
+
+### Earn Points
+
+```php
+public function earnPoints(
+    int $points,
+    string $reason,
+    ?Order $order = null,
+    bool $pending = false
+): FidelityTransaction
+{
+    $transaction = $this->transactions()->create([
+        'type' => 'earn',
+        'points' => $points,
+        'reason' => $reason,
+        'order_id' => $order?->id,
+        'status' => $pending ? 'pending' : 'completed',
+    ]);
+
+    if (!$pending) {
+        $this->increment('points_balance', $points);
+        $this->increment('points_lifetime', $points);
+        $this->last_used_at = now();
+        $this->save();
+
+        // Check tier upgrade
+        $this->checkTierUpgrade();
+    } else {
+        $this->increment('points_pending', $points);
+    }
+
+    return $transaction;
+}
+```
+
+### Redeem Points
+
+```php
+public function redeemPoints(int $points, string $reason, ?Order $order = null): FidelityTransaction
+{
+    if ($this->points_balance < $points) {
+        throw new InsufficientPointsException(
+            "Only {$this->points_balance} points available"
+        );
+    }
+
+    $transaction = $this->transactions()->create([
+        'type' => 'redeem',
+        'points' => -$points,
+        'reason' => $reason,
+        'order_id' => $order?->id,
+        'status' => 'completed',
+    ]);
+
+    $this->decrement('points_balance', $points);
+    $this->last_used_at = now();
+    $this->save();
+
+    return $transaction;
+}
+```
+
+### Calculate Points from Order
+
+```php
+public function calculatePointsFromOrder(Order $order): int
+{
+    $multiplier = $this->customer->customerGroup->fidelity_points_multiplier ?? 1.0;
+    $pointsPerCurrency = config('shopper.fidelity.points_per_currency', 100);
+
+    // 1 point per currency unit spent
+    $basePoints = floor($order->total / ($pointsPerCurrency / 100));
+
+    return (int) ($basePoints * $multiplier);
+}
+```
+
+### Check Tier Upgrade
+
+```php
+public function checkTierUpgrade(): void
+{
+    $tiers = config('shopper.fidelity.tiers');
+    $currentTierIndex = array_search($this->tier, array_keys($tiers));
+
+    foreach ($tiers as $tierName => $tierConfig) {
+        $tierIndex = array_search($tierName, array_keys($tiers));
+
+        if ($tierIndex > $currentTierIndex &&
+            $this->points_lifetime >= $tierConfig['points_required']) {
+
+            $this->update([
+                'tier' => $tierName,
+                'tier_points_required' => $tierConfig['points_required'],
+                'tier_achieved_at' => now(),
+                'benefits' => $tierConfig['benefits'],
+            ]);
+
+            event(new TierUpgraded($this, $tierName));
+        }
+    }
+}
+```
+
+### Expire Points
+
+```php
+public function expirePoints(): void
+{
+    $expiryMonths = config('shopper.fidelity.points_expiry_months', 12);
+
+    $expiredTransactions = $this->transactions()
+        ->where('type', 'earn')
+        ->where('status', 'completed')
+        ->where('created_at', '<', now()->subMonths($expiryMonths))
+        ->whereNull('expired_at')
+        ->get();
+
+    $totalExpired = 0;
+
+    foreach ($expiredTransactions as $transaction) {
+        $transaction->update(['expired_at' => now()]);
+        $totalExpired += $transaction->points;
+    }
+
+    if ($totalExpired > 0) {
+        $this->decrement('points_balance', $totalExpired);
+
+        $this->transactions()->create([
+            'type' => 'expiry',
+            'points' => -$totalExpired,
+            'reason' => 'Points expired',
+            'status' => 'completed',
+        ]);
+    }
+}
+```
+
+---
+
+## REST API
+
+### Get Fidelity Card
+
+```http
+GET /api/v1/customers/{customer}/fidelity-card
+```
+
+**Response**:
+```json
+{
+  "id": 15,
+  "card_number": "LOYAL-2025-00123",
+  "tier": "gold",
+  "points_balance": 5420,
+  "points_lifetime": 12850,
+  "points_value": "54.20",
+  "total_spent": "2850.00",
+  "orders_count": 47,
+  "is_active": true,
+  "expires_at": "2026-12-31T23:59:59Z",
+  "benefits": {
+    "discount": "15%",
+    "free_shipping": true,
+    "priority_support": true
+  }
+}
+```
+
+### Earn Points
+
+```http
+POST /api/v1/fidelity-cards/{card}/earn
+```
+
+**Request**:
+```json
+{
+  "points": 100,
+  "reason": "Order #123",
+  "order_id": 123
+}
+```
+
+### Redeem Points
+
+```http
+POST /api/v1/fidelity-cards/{card}/redeem
+```
+
+**Request**:
+```json
+{
+  "points": 500,
+  "reason": "Discount on order"
+}
+```
+
+### Get Transactions
+
+```http
+GET /api/v1/fidelity-cards/{card}/transactions
+```
+
+---
+
+## GraphQL API
+
+```graphql
+query {
+  customer(id: 123) {
+    fidelityCard {
+      id
+      cardNumber
+      tier
+      pointsBalance
+      pointsValue
+      totalSpent
+      ordersCount
+      isActive
+      canUpgradeTier
+      benefits
+      transactions(last: 10) {
+        id
+        type
+        points
+        reason
+        createdAt
+      }
+    }
+  }
+}
+```
+
+---
+
+## Related Documentation
+
+- [FidelityTransaction Model](model-fidelity-transaction)
+- [Customer Model](model-customer)
+- [Order Model](model-order)
+- [Fidelity System Guide](fidelity-system)
+- [REST API - Fidelity](api-fidelity)

@@ -1,0 +1,554 @@
+---
+id: model-customer-group
+blueprint: documentation
+title: 'Model: CustomerGroup'
+updated_by: system
+updated_at: 1738675127
+---
+# Model: CustomerGroup
+
+The CustomerGroup model enables customer segmentation for targeted pricing, discounts, and features. Groups can represent business types (B2B, B2C), loyalty tiers (VIP, Gold), or custom segments (Wholesale, Retail).
+
+[TOC]
+
+## Overview
+
+A **CustomerGroup** segments customers for different treatment:
+
+```php
+CustomerGroup {
+    name: "Wholesale"
+    code: "wholesale"
+    type: "b2b"
+    discount_percentage: 30.00
+    tax_exempt: false
+    min_order_amount: 500.00
+}
+```
+
+**Common Use Cases**:
+- **B2B vs B2C** - Different pricing and terms
+- **VIP Tiers** - Loyalty-based benefits
+- **Wholesale** - Volume discounts
+- **Employee** - Internal pricing
+- **Partner** - Special terms
+
+---
+
+## Database Schema
+
+```php
+Schema::create('customer_groups', function (Blueprint $table) {
+    $table->id();
+
+    // Basic info
+    $table->string('name');
+    $table->string('code')->unique(); // wholesale, vip, retail
+    $table->string('type')->default('b2c'); // b2b, b2c, vip, wholesale, employee
+    $table->text('description')->nullable();
+
+    // Pricing
+    $table->decimal('discount_percentage', 5, 2)->default(0);
+    $table->boolean('show_prices_with_tax')->default(true);
+    $table->boolean('tax_exempt')->default(false);
+
+    // Ordering
+    $table->decimal('min_order_amount', 15, 2)->nullable();
+    $table->decimal('max_order_amount', 15, 2)->nullable();
+    $table->integer('min_order_quantity')->nullable();
+
+    // Features
+    $table->boolean('requires_approval')->default(false);
+    $table->boolean('can_use_credit')->default(false);
+    $table->integer('credit_days')->nullable(); // Payment terms (Net 30)
+    $table->decimal('credit_limit', 15, 2)->nullable();
+
+    // Fidelity
+    $table->decimal('fidelity_points_multiplier', 5, 2)->default(1.00);
+
+    // Shipping
+    $table->boolean('free_shipping')->default(false);
+    $table->decimal('free_shipping_threshold', 15, 2)->nullable();
+
+    // Priority & Status
+    $table->integer('priority')->default(0);
+    $table->boolean('is_active')->default(true);
+    $table->boolean('is_default')->default(false);
+
+    // Meta
+    $table->json('data')->nullable();
+
+    $table->timestamps();
+
+    // Indexes
+    $table->index('code');
+    $table->index('type');
+    $table->index('is_active');
+    $table->index('is_default');
+});
+```
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `bigint` | Primary key |
+| `name` | `string` | Group name |
+| `code` | `string` | Group code (unique) |
+| `type` | `string` | Group type |
+| `description` | `text` | Description |
+| `discount_percentage` | `decimal` | Base discount % |
+| `show_prices_with_tax` | `boolean` | Display tax in prices |
+| `tax_exempt` | `boolean` | Tax exemption |
+| `min_order_amount` | `decimal` | Minimum order value |
+| `max_order_amount` | `decimal` | Maximum order value |
+| `min_order_quantity` | `integer` | Minimum quantity |
+| `requires_approval` | `boolean` | Needs approval |
+| `can_use_credit` | `boolean` | Allow credit terms |
+| `credit_days` | `integer` | Payment terms days |
+| `credit_limit` | `decimal` | Credit limit |
+| `fidelity_points_multiplier` | `decimal` | Points multiplier |
+| `free_shipping` | `boolean` | Free shipping enabled |
+| `free_shipping_threshold` | `decimal` | Threshold for free shipping |
+| `priority` | `integer` | Priority order |
+| `is_active` | `boolean` | Active status |
+| `is_default` | `boolean` | Default group |
+| `data` | `json` | Custom data |
+
+---
+
+## Relationships
+
+```php
+namespace Shopper\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class CustomerGroup extends Model
+{
+    protected $fillable = [
+        'name',
+        'code',
+        'type',
+        'description',
+        'discount_percentage',
+        'show_prices_with_tax',
+        'tax_exempt',
+        'min_order_amount',
+        'max_order_amount',
+        'min_order_quantity',
+        'requires_approval',
+        'can_use_credit',
+        'credit_days',
+        'credit_limit',
+        'fidelity_points_multiplier',
+        'free_shipping',
+        'free_shipping_threshold',
+        'priority',
+        'is_active',
+        'is_default',
+        'data',
+    ];
+
+    protected $casts = [
+        'discount_percentage' => 'decimal:2',
+        'show_prices_with_tax' => 'boolean',
+        'tax_exempt' => 'boolean',
+        'min_order_amount' => 'decimal:2',
+        'max_order_amount' => 'decimal:2',
+        'min_order_quantity' => 'integer',
+        'requires_approval' => 'boolean',
+        'can_use_credit' => 'boolean',
+        'credit_days' => 'integer',
+        'credit_limit' => 'decimal:2',
+        'fidelity_points_multiplier' => 'decimal:2',
+        'free_shipping' => 'boolean',
+        'free_shipping_threshold' => 'decimal:2',
+        'priority' => 'integer',
+        'is_active' => 'boolean',
+        'is_default' => 'boolean',
+        'data' => 'array',
+    ];
+
+    // Customers
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    // Prices
+    public function variantPrices(): HasMany
+    {
+        return $this->hasMany(VariantPrice::class);
+    }
+}
+```
+
+---
+
+## Scopes
+
+```php
+// Active groups
+public function scopeActive($query)
+{
+    return $query->where('is_active', true);
+}
+
+// By type
+public function scopeOfType($query, string $type)
+{
+    return $query->where('type', $type);
+}
+
+// Default group
+public function scopeDefault($query)
+{
+    return $query->where('is_default', true);
+}
+
+// By priority
+public function scopeByPriority($query)
+{
+    return $query->orderByDesc('priority');
+}
+```
+
+---
+
+## Accessors & Mutators
+
+```php
+// Has discount
+public function getHasDiscountAttribute(): bool
+{
+    return $this->discount_percentage > 0;
+}
+
+// Has min order
+public function getHasMinOrderAttribute(): bool
+{
+    return $this->min_order_amount !== null || $this->min_order_quantity !== null;
+}
+
+// Has credit terms
+public function getHasCreditTermsAttribute(): bool
+{
+    return $this->can_use_credit && $this->credit_days > 0;
+}
+
+// Credit terms label
+public function getCreditTermsLabelAttribute(): ?string
+{
+    if (!$this->has_credit_terms) {
+        return null;
+    }
+
+    return "Net {$this->credit_days}";
+}
+
+// Is b2b
+public function getIsB2bAttribute(): bool
+{
+    return $this->type === 'b2b' || $this->type === 'wholesale';
+}
+
+// Is vip
+public function getIsVipAttribute(): bool
+{
+    return $this->type === 'vip';
+}
+```
+
+---
+
+## Methods
+
+### Get Default Group
+
+```php
+public static function getDefault(): self
+{
+    return self::default()->first()
+        ?? self::active()->orderBy('id')->first()
+        ?? self::first();
+}
+```
+
+### Check if Order is Valid
+
+```php
+public function isOrderValid(float $amount, int $quantity): array
+{
+    $errors = [];
+
+    // Check min order amount
+    if ($this->min_order_amount && $amount < $this->min_order_amount) {
+        $errors[] = "Minimum order amount is " . money($this->min_order_amount);
+    }
+
+    // Check max order amount
+    if ($this->max_order_amount && $amount > $this->max_order_amount) {
+        $errors[] = "Maximum order amount is " . money($this->max_order_amount);
+    }
+
+    // Check min quantity
+    if ($this->min_order_quantity && $quantity < $this->min_order_quantity) {
+        $errors[] = "Minimum order quantity is {$this->min_order_quantity} items";
+    }
+
+    return [
+        'valid' => empty($errors),
+        'errors' => $errors,
+    ];
+}
+```
+
+### Calculate Price for Customer
+
+```php
+public function calculatePrice(float $basePrice): float
+{
+    if ($this->discount_percentage <= 0) {
+        return $basePrice;
+    }
+
+    return $basePrice * (1 - ($this->discount_percentage / 100));
+}
+```
+
+### Check Credit Availability
+
+```php
+public function checkCreditAvailability(Customer $customer, float $amount): bool
+{
+    if (!$this->can_use_credit || !$this->credit_limit) {
+        return false;
+    }
+
+    $usedCredit = $customer->orders()
+        ->where('payment_status', 'pending')
+        ->sum('total');
+
+    return ($usedCredit + $amount) <= $this->credit_limit;
+}
+```
+
+---
+
+## REST API
+
+### List Customer Groups
+
+```http
+GET /api/v1/customer-groups
+```
+
+**Response**:
+```json
+{
+  "data": [
+    {
+      "id": 5,
+      "name": "Wholesale",
+      "code": "wholesale",
+      "type": "b2b",
+      "discount_percentage": "30.00",
+      "has_discount": true,
+      "tax_exempt": false,
+      "min_order_amount": "500.00",
+      "credit_terms_label": "Net 30",
+      "is_active": true
+    }
+  ]
+}
+```
+
+### Get Group Details
+
+```http
+GET /api/v1/customer-groups/{id}
+```
+
+### Check Order Validity
+
+```http
+POST /api/v1/customer-groups/{id}/validate-order
+```
+
+**Request**:
+```json
+{
+  "amount": 450.00,
+  "quantity": 10
+}
+```
+
+**Response**:
+```json
+{
+  "valid": false,
+  "errors": [
+    "Minimum order amount is €500.00"
+  ]
+}
+```
+
+---
+
+## GraphQL API
+
+```graphql
+query {
+  customerGroups(isActive: true) {
+    id
+    name
+    code
+    type
+    discountPercentage
+    hasDiscount
+    taxExempt
+    minOrderAmount
+    creditTermsLabel
+  }
+}
+
+query {
+  customerGroup(code: "wholesale") {
+    id
+    name
+    customers {
+      id
+      full_name
+      email
+    }
+    variantPrices {
+      variant {
+        sku
+      }
+      price
+    }
+  }
+}
+```
+
+---
+
+## Practical Examples
+
+### Create B2B Wholesale Group
+
+```php
+use Shopper\Models\CustomerGroup;
+
+$wholesale = CustomerGroup::create([
+    'name' => 'Wholesale',
+    'code' => 'wholesale',
+    'type' => 'b2b',
+    'discount_percentage' => 30,
+    'tax_exempt' => false,
+    'min_order_amount' => 500,
+    'can_use_credit' => true,
+    'credit_days' => 30,
+    'credit_limit' => 10000,
+    'requires_approval' => true,
+    'fidelity_points_multiplier' => 0.5,
+    'is_active' => true,
+]);
+```
+
+### Create VIP Group
+
+```php
+$vip = CustomerGroup::create([
+    'name' => 'VIP Customers',
+    'code' => 'vip',
+    'type' => 'vip',
+    'discount_percentage' => 15,
+    'free_shipping' => true,
+    'fidelity_points_multiplier' => 2.0,
+    'priority' => 100,
+    'is_active' => true,
+]);
+```
+
+### Assign Customer to Group
+
+```php
+$customer = Customer::find(123);
+$group = CustomerGroup::where('code', 'wholesale')->first();
+
+$customer->update([
+    'customer_group_id' => $group->id,
+]);
+```
+
+### Calculate Group Pricing
+
+```php
+$group = CustomerGroup::where('code', 'wholesale')->first();
+$basePrice = 100.00;
+
+$discountedPrice = $group->calculatePrice($basePrice); // 70.00
+```
+
+### Validate Order for Group
+
+```php
+$group = CustomerGroup::find(5);
+
+$validation = $group->isOrderValid(
+    amount: 450.00,
+    quantity: 10
+);
+
+if (!$validation['valid']) {
+    return response()->json([
+        'errors' => $validation['errors'],
+    ], 400);
+}
+```
+
+### Get Customers by Group
+
+```php
+$wholesaleCustomers = CustomerGroup::where('code', 'wholesale')
+    ->first()
+    ->customers()
+    ->with(['orders', 'fidelityCard'])
+    ->get();
+```
+
+---
+
+## Performance Tips
+
+### 1. Cache Default Group
+
+```php
+use Illuminate\Support\Facades\Cache;
+
+$defaultGroup = Cache::rememberForever(
+    'customer_group.default',
+    fn() => CustomerGroup::getDefault()
+);
+```
+
+### 2. Eager Load Group with Customers
+
+```php
+$customers = Customer::with('customerGroup')->get();
+```
+
+---
+
+## Related Documentation
+
+- [Customer Model](model-customer)
+- [VariantPrice Model](model-variant-price)
+- [Pricing System Guide](pricing-system)
+- [Customer Groups Guide](customer-groups)
+- [REST API - Customers](api-customers)
