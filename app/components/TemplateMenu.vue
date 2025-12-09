@@ -4,7 +4,7 @@
     :modal="false"
     :items="[{
       label: 'Admin Panel',
-      to: '/admin'
+      to: '#'
     },{
       label: 'Changelog',
       to: '/changelog'
