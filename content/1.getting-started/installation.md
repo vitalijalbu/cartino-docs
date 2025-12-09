@@ -5,6 +5,7 @@ title: Installation
 updated_by: system
 updated_at: 1738675127
 ---
+
 # Installation
 
 Get Cartino up and running in your Laravel application.
@@ -15,13 +16,13 @@ Get Cartino up and running in your Laravel application.
 
 Before installing Cartino, ensure your system meets these requirements:
 
-| Requirement | Version |
-|-------------|---------|
-| PHP | 8.2+ |
-| Laravel | 11.0+ |
-| Node.js | 18.0+ |
-| Database | MySQL 8.0+, PostgreSQL 14+, or SQLite |
-| Composer | 2.0+ |
+| Requirement | Version                               |
+| ----------- | ------------------------------------- |
+| PHP         | 8.2+                                  |
+| Laravel     | 11.0+                                 |
+| Node.js     | 18.0+                                 |
+| Database    | MySQL 8.0+, PostgreSQL 14+, or SQLite |
+| Composer    | 2.0+                                  |
 
 ### Required PHP Extensions
 
@@ -55,6 +56,7 @@ php artisan cartino:install
 ```
 
 The installation command will:
+
 - Publish configuration files
 - Run database migrations
 - Build frontend assets
@@ -87,6 +89,7 @@ php artisan cartino:install
 ```
 
 This will prompt you for:
+
 - Admin user credentials
 - Sample data installation
 - Site configuration
@@ -182,7 +185,7 @@ php artisan queue:work
 
 Visit your admin panel:
 
-```
+```text
 http://your-domain.com/admin
 ```
 
@@ -327,6 +330,7 @@ php artisan cartino:update
 ```
 
 This will:
+
 - Run new migrations
 - Rebuild assets
 - Clear caches

@@ -1,10 +1,11 @@
 ---
 id: addon-system-overview
 blueprint: documentation
-title: 'Addon System - Overview'
+title: Addon System - Overview
 updated_by: system
 updated_at: 1738675127
 ---
+
 # Addon System - Overview
 
 Cartino features a powerful addon system inspired by Statamic CMS, allowing you to extend the platform with custom features without modifying the core.
@@ -29,7 +30,7 @@ An addon is a modular extension that adds functionality to Cartino. Addons can p
 
 ### Stack Tecnologico
 
-```
+```text
 Backend:
 ├── Laravel 11 (Framework PHP)
 ├── MySQL/PostgreSQL (Database)
@@ -50,7 +51,7 @@ Addon System:
 
 ### Directory Structure
 
-```
+```text
 your-app/
 ├── app/
 │   └── CMS/
@@ -112,7 +113,7 @@ php artisan cms:make-addon Blog
 
 The generator creates this structure:
 
-```
+```text
 addons/blog/
 ├── src/
 │   ├── BlogServiceProvider.php      # Main service provider

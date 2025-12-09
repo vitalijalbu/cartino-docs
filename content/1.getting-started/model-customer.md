@@ -1,10 +1,11 @@
 ---
 id: model-customer
 blueprint: documentation
-title: 'Model: Customer'
+title: "Model: Customer"
 updated_by: system
 updated_at: 1738675127
 ---
+
 # Model: Customer
 
 The Customer model represents registered users who can place orders in your store. Customers can belong to groups, have loyalty cards, and maintain multiple addresses.
@@ -28,6 +29,7 @@ Customer {
 ```
 
 **Key Features**:
+
 - Customer groups (Retail, Wholesale, VIP)
 - Loyalty card & points system
 - Multiple shipping/billing addresses
@@ -108,68 +110,68 @@ Schema::create('customers', function (Blueprint $table) {
 
 ### Core Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | bigint | Primary key |
-| `email` | string | Email address (unique) |
-| `first_name` | string | First name |
-| `last_name` | string | Last name |
-| `phone` | string | Phone number |
-| `date_of_birth` | date | Date of birth |
-| `gender` | string | Gender |
+| Property        | Type   | Description            |
+| --------------- | ------ | ---------------------- |
+| `id`            | bigint | Primary key            |
+| `email`         | string | Email address (unique) |
+| `first_name`    | string | First name             |
+| `last_name`     | string | Last name              |
+| `phone`         | string | Phone number           |
+| `date_of_birth` | date   | Date of birth          |
+| `gender`        | string | Gender                 |
 
 ### Authentication
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `password` | string | Hashed password |
-| `remember_token` | string | Remember token |
+| Property            | Type      | Description        |
+| ------------------- | --------- | ------------------ |
+| `password`          | string    | Hashed password    |
+| `remember_token`    | string    | Remember token     |
 | `email_verified_at` | timestamp | Email verification |
 
 ### Company (B2B)
 
-| Property | Type | Description |
-|----------|------|-------------|
+| Property       | Type   | Description  |
+| -------------- | ------ | ------------ |
 | `company_name` | string | Company name |
-| `vat_number` | string | VAT/Tax ID |
-| `tax_code` | string | Tax code |
+| `vat_number`   | string | VAT/Tax ID   |
+| `tax_code`     | string | Tax code     |
 
 ### Segmentation
 
-| Property | Type | Description |
-|----------|------|-------------|
+| Property            | Type      | Description    |
+| ------------------- | --------- | -------------- |
 | `customer_group_id` | foreignId | Customer group |
-| `tags` | json | Tags array |
+| `tags`              | json      | Tags array     |
 
 ### Marketing
 
-| Property | Type | Description |
-|----------|------|-------------|
+| Property            | Type    | Description             |
+| ------------------- | ------- | ----------------------- |
 | `accepts_marketing` | boolean | Email marketing consent |
-| `accepts_sms` | boolean | SMS marketing consent |
-| `marketing_source` | string | Acquisition source |
+| `accepts_sms`       | boolean | SMS marketing consent   |
+| `marketing_source`  | string  | Acquisition source      |
 
 ### Metrics
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `status` | string | `active`, `inactive`, `blocked` |
-| `lifetime_value` | decimal(15,2) | Total spent |
-| `orders_count` | integer | Number of orders |
-| `last_order_at` | timestamp | Last order date |
+| Property         | Type          | Description                     |
+| ---------------- | ------------- | ------------------------------- |
+| `status`         | string        | `active`, `inactive`, `blocked` |
+| `lifetime_value` | decimal(15,2) | Total spent                     |
+| `orders_count`   | integer       | Number of orders                |
+| `last_order_at`  | timestamp     | Last order date                 |
 
 ### Relationships
 
-| Relation | Type | Description |
-|----------|------|-------------|
-| `group` | belongsTo | CustomerGroup |
-| `addresses` | hasMany | Address |
-| `orders` | hasMany | Order |
-| `carts` | hasMany | Cart |
-| `fidelityCard` | hasOne | FidelityCard |
-| `fidelityTransactions` | hasMany | FidelityTransaction |
-| `wishlistItems` | hasMany | WishlistItem |
-| `reviews` | hasMany | ProductReview |
+| Relation               | Type      | Description         |
+| ---------------------- | --------- | ------------------- |
+| `group`                | belongsTo | CustomerGroup       |
+| `addresses`            | hasMany   | Address             |
+| `orders`               | hasMany   | Order               |
+| `carts`                | hasMany   | Cart                |
+| `fidelityCard`         | hasOne    | FidelityCard        |
+| `fidelityTransactions` | hasMany   | FidelityTransaction |
+| `wishlistItems`        | hasMany   | WishlistItem        |
+| `reviews`              | hasMany   | ProductReview       |
 
 ---
 
