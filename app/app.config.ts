@@ -64,7 +64,7 @@ export default defineAppConfig({
       }, {
         icon: 'i-lucide-book-open',
         label: 'Nuxt UI docs',
-        to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
+        to: 'https://ui.nuxt.com/docs/#/installation/nuxt',
         target: '_blank'
       }]
     }

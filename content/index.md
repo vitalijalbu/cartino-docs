@@ -18,7 +18,7 @@ Build powerful, scalable e-commerce applications with Cartino - a headless platf
 #links
   :::u-button
   ---
-  to: /getting-started
+  to: /#
   size: xl
   trailing-icon: i-lucide-arrow-right
   ---
@@ -211,7 +211,7 @@ Built with Modern Stack
   ---
   links:
     - label: Get Started
-      to: '/getting-started'
+      to: '/#'
       trailingIcon: i-lucide-arrow-right
     - label: View on GitHub
       to: 'https://github.com/cartinophp/cartino'
