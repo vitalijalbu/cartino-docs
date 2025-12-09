@@ -1,11 +1,9 @@
 ---
-title: Community
+title: 👥 Community
 description: Join the Cartino community - get help, share knowledge, and connect with other developers.
 navigation:
   icon: i-lucide-users
 ---
-
-# Community Support
 
 Welcome to the Cartino community! Connect with other developers, get help, share your projects, and contribute to the ecosystem.
 

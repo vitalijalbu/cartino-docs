@@ -1,11 +1,9 @@
 ---
-title: Storefront
+title: 🏪 Storefront
 description: Build beautiful e-commerce storefronts with Laravel Blade templates and components.
 navigation:
   icon: i-lucide-store
 ---
-
-# Storefront Development
 
 Build your e-commerce storefront using Laravel Blade templates, components, and Tailwind CSS. Create beautiful, performant shopping experiences with server-side rendering.
 

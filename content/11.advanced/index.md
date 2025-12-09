@@ -1,4 +1,9 @@
-# Advanced Topics
+---
+title: ⚡ Advanced Topics
+description: Advanced features and concepts for building sophisticated e-commerce solutions
+navigation:
+  icon: i-lucide-zap
+---
 
 Explore advanced features and concepts in Cartino to build sophisticated e-commerce solutions.
 

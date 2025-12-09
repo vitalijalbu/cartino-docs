@@ -1,11 +1,9 @@
 ---
-title: API Reference
+title: 🔌 API Reference
 description: Complete API reference for Cartino - REST and GraphQL endpoints for headless e-commerce.
 navigation:
   icon: i-lucide-code
 ---
-
-# API Reference
 
 Cartino provides powerful REST and GraphQL APIs for building headless e-commerce applications. Access all commerce functionality programmatically with comprehensive endpoints for products, orders, customers, and more.
 
