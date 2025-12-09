@@ -31,24 +31,6 @@ to: /advanced/theme-distribution
 ---
 Create, customize, and publish beautiful storefront themes
 ::
-
-::card
----
-title: Performance Optimization
-icon: i-heroicons-rocket-launch
-to: /advanced/performance
----
-Scale your store with caching, queues, and database optimization
-::
-
-::card
----
-title: Multi-Site Architecture
-icon: i-heroicons-globe-alt
-to: /advanced/multi-site
----
-Manage multiple stores from a single Cartino installation
-::
 ::
 
 ## What's Covered
