@@ -18,7 +18,7 @@ Build powerful, scalable e-commerce applications with Cartino - a headless platf
 #links
   :::u-button
   ---
-  to: /#
+  to: /get-started
   size: xl
   trailing-icon: i-lucide-arrow-right
   ---
