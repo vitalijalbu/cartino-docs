@@ -1,21 +1,19 @@
 ---
-seo:
-  title: Nuxt Docs Template
-  description: Create stunning, fast and SEO-optimized documentation sites with Nuxt UI.
+title: Cartino Documentation
+description: Powerful headless e-commerce platform combining Shopify-style commerce with Laravel flexibility.
+navigation: false
 ---
 
 ::u-page-hero{class="dark:bg-gradient-to-b from-neutral-900 to-neutral-950"}
 ---
 orientation: horizontal
 ---
-#top
-:hero-background
 
 #title
-Ship Beautiful [Documentation]{.text-primary}.
+Cartino [E-commerce]{.text-primary} Platform
 
 #description
-Build professional documentation with Nuxt UI's powerful components, enhanced typography, and seamless Nuxt Content integration. The same system trusted by the entire [Nuxt ecosystem](https://nuxt.com).
+Build powerful, scalable e-commerce applications with Cartino - a headless platform combining Shopify-style product architecture with Laravel flexibility.
 
 #links
   :::u-button
@@ -24,7 +22,7 @@ Build professional documentation with Nuxt UI's powerful components, enhanced ty
   size: xl
   trailing-icon: i-lucide-arrow-right
   ---
-  Get started
+  Get Started
   :::
 
   :::u-button
@@ -33,178 +31,145 @@ Build professional documentation with Nuxt UI's powerful components, enhanced ty
   color: neutral
   variant: outline
   size: xl
-  to: https://github.com/nuxt-ui-templates/docs
+  to: https://github.com/cartinophp/cartino
   target: _blank
   ---
-  Use this template
+  View on GitHub
   :::
 
 #default
   :::prose-pre
   ---
   code: |
-    export default defineNuxtConfig({
-      modules: [
-        '@nuxt/ui',
-        '@nuxt/content',
-        'nuxt-og-image',
-        'nuxt-llms'
-      ],
-
-      css: ['~/assets/css/main.css']
-    })
-  filename: nuxt.config.ts
+    // Install Cartino
+    composer create-project cartino/cartino my-store
+    
+    // Run migrations
+    php artisan migrate
+  filename: Installation
   ---
 
-  ```ts [nuxt.config.ts]
-  export default defineNuxtConfig({
-    modules: [
-      '@nuxt/ui',
-      '@nuxt/content',
-      'nuxt-og-image',
-      'nuxt-llms'
-    ],
-
-    css: ['~/assets/css/main.css']
-  })
+  ```bash [Installation]
+  # Clone the repository
+  git clone https://github.com/cartinophp/cartino.git
+  
+  # Install dependencies
+  composer install && npm install
+  
+  # Setup and migrate
+  php artisan migrate
   ```
   :::
 ::
 
 ::u-page-section{class="dark:bg-neutral-950"}
 #title
-Powered by Nuxt UI components
-
-#links
-  :::u-button
-  ---
-  color: neutral
-  size: lg
-  target: _blank
-  to: https://ui.nuxt.com/docs/getting-started/installation/nuxt
-  trailingIcon: i-lucide-arrow-right
-  variant: subtle
-  ---
-  Explore Nuxt UI
-  :::
+Core Features
 
 #features
   :::u-page-feature
   ---
-  icon: i-lucide-palette
+  icon: i-lucide-package
   ---
   #title
-  100+ UI Components
+  Product Management
 
   #description
-  Access the complete Nuxt UI component library. From badges to modals, everything styled and accessible out of the box.
+  Multi-variant products with unlimited options, advanced inventory tracking with multiple locations, and flexible product types.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-type
+  icon: i-lucide-globe
   ---
   #title
-  Beautiful Typography
+  Multi-Site Architecture
 
   #description
-  Pre-styled prose components with perfect visual harmony. No need for @tailwindcss/typography - get precise control over every element.
+  Sites as Markets with flexible pricing per site, channel, and customer group. Multi-currency and multi-locale support.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-layers
+  icon: i-lucide-wallet
   ---
   #title
-  Rich Prose Components
+  Pricing & Discounts
 
   #description
-  Accordions, cards, callouts, tabs, steps, code blocks, and more - all provided by Nuxt UI for interactive documentation.
+  Advanced pricing rules, customer group pricing, quantity discounts, promotional pricing, and coupon management.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-search
+  icon: i-lucide-warehouse
   ---
   #title
-  Built-in Search
+  Inventory Control
 
   #description
-  Full-text search with ContentSearch component. No need for Algolia - instant, relevant results with keyboard shortcuts (⌘K).
+  Multi-location inventory tracking, stock movements, transfers, and reservations with full audit trail.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-navigation
+  icon: i-lucide-users
   ---
   #title
-  Smart Navigation
+  Customer Management
 
   #description
-  Auto-generated navigation with ContentNavigation and ContentToc components. Sticky table of contents and prev/next links.
+  Customer groups with custom pricing, loyalty card system, points & rewards with tiered conversion.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-moon
+  icon: i-lucide-shopping-cart
   ---
   #title
-  Dark Mode Ready
+  Order Processing
 
   #description
-  Automatic theme switching with smooth transitions. Respects system preferences and remembers user choice.
+  Complete order lifecycle management with status tracking, fulfillment, and payment integration.
   :::
 ::
 
 ::u-page-section{class="dark:bg-neutral-950"}
 #title
-Enhanced with Nuxt Content
-
-#links
-  :::u-button
-  ---
-  color: neutral
-  size: lg
-  target: _blank
-  to: https://content.nuxt.com/docs/getting-started/installation
-  trailingIcon: i-lucide-arrow-right
-  variant: subtle
-  ---
-  Explore Nuxt Content
-  :::
+Built with Modern Stack
 
 #features
   :::u-page-feature
   ---
-  icon: i-simple-icons-markdown
+  icon: i-simple-icons-laravel
   ---
   #title
-  MDC Enhanced Markdown
+  Laravel 11
 
   #description
-  Write in Markdown while embedding Vue components. Seamlessly integrate interactive elements in your content.
+  Modern PHP framework with powerful ORM, routing, and ecosystem. Built on solid foundations.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-file-text
+  icon: i-simple-icons-vuedotjs
   ---
   #title
-  File-based Routing
+  Vue 3 & Inertia
 
   #description
-  Organize content in folders and files. Your documentation structure automatically becomes your navigation.
+  Reactive UI with Composition API. Server-side routing with SPA experience using Inertia.js.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-code
+  icon: i-simple-icons-tailwindcss
   ---
   #title
-  Syntax Highlighting
+  Tailwind CSS
 
   #description
-  Beautiful code blocks with language detection, line numbers, and copy buttons. Support for 100+ languages.
+  Utility-first styling with Vite for lightning-fast builds and hot module replacement.
   :::
 
   :::u-page-feature
@@ -212,32 +177,32 @@ Enhanced with Nuxt Content
   icon: i-lucide-database
   ---
   #title
-  Content Database
+  PostgreSQL/MySQL
 
   #description
-  Query your content with a MongoDB-like API. Filter, sort, and search through your documentation programmatically.
+  Relational database with JSONB support for flexible custom fields and metadata.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-file-code
+  icon: i-lucide-code
   ---
   #title
-  Frontmatter Support
+  Type-safe Models
 
   #description
-  Add metadata to your content files. Define SEO tags, navigation properties, and custom fields.
+  Eloquent models with PHP enums, casts, and relationships for clean, maintainable code.
   :::
 
   :::u-page-feature
   ---
-  icon: i-lucide-git-branch
+  icon: i-lucide-zap
   ---
   #title
-  Version Control
+  Event-driven
 
   #description
-  Content lives in your repository. Branch, review, and deploy documentation alongside your code.
+  Event-driven architecture for extensibility. Build addons and integrations with ease.
   :::
 ::
 
@@ -245,19 +210,17 @@ Enhanced with Nuxt Content
   :::u-page-c-t-a
   ---
   links:
-    - label: Start building
+    - label: Get Started
       to: '/getting-started'
       trailingIcon: i-lucide-arrow-right
     - label: View on GitHub
-      to: 'https://github.com/nuxt-ui-templates/docs'
+      to: 'https://github.com/cartinophp/cartino'
       target: _blank
       variant: subtle
       icon: i-simple-icons-github
-  title: Ready to build an amazing documentation?
-  description: Join thousands of developers building with Nuxt and Nuxt UI. Get this template and start shipping today.
+  title: Ready to build your e-commerce platform?
+  description: Join developers building powerful commerce experiences with Cartino. Start your project today.
   class: dark:bg-neutral-950
   ---
-
-  :stars-bg
   :::
 ::
