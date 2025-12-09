@@ -66,33 +66,6 @@ query {
     }
   }
 }
-```
-
-::card-group
-  :::card
-  ---
-  icon: i-simple-icons-graphql
-  to: /api/graphql
-  ---
-  #title
-  GraphQL API
-
-  #description
-  Queries, mutations, and subscriptions for flexible data operations.
-  :::
-
-  :::card
-  ---
-  icon: i-lucide-webhook
-  to: /api/webhooks
-  ---
-  #title
-  Webhooks
-
-  #description
-  Real-time notifications for orders, inventory, and customer events.
-  :::
-::
 
 ## Quick Start
 
@@ -101,7 +74,7 @@ query {
 Generate an API key from the admin dashboard:
 
 ```bash
-# Admin ’ Settings ’ API Keys ’ Generate New Key
+# Admin ï¿½ Settings ï¿½ API Keys ï¿½ Generate New Key
 ```
 
 ### Make Your First Request
@@ -152,7 +125,7 @@ Manage products, variants, and inventory:
 - `PUT /api/products/{id}` - Update product
 - `DELETE /api/products/{id}` - Delete product
 
-[View full Products API ’](/api/rest#products)
+[View full Products API ï¿½](/api/rest#products)
 
 ### Orders
 
@@ -164,7 +137,7 @@ Process orders and manage fulfillment:
 - `PUT /api/orders/{id}` - Update order status
 - `POST /api/orders/{id}/fulfill` - Mark as fulfilled
 
-[View full Orders API ’](/api/rest#orders)
+[View full Orders API ï¿½](/api/rest#orders)
 
 ### Customers
 
@@ -175,7 +148,7 @@ Manage customer accounts:
 - `POST /api/customers` - Create customer
 - `PUT /api/customers/{id}` - Update customer
 
-[View full Customers API ’](/api/rest#customers)
+[View full Customers API ï¿½](/api/rest#customers)
 
 ### Cart
 
@@ -187,7 +160,7 @@ Shopping cart operations:
 - `DELETE /api/cart/items/{id}` - Remove item
 - `POST /api/cart/checkout` - Process checkout
 
-[View full Cart API ’](/api/rest#cart)
+[View full Cart API ï¿½](/api/rest#cart)
 
 ## Features
 
@@ -282,7 +255,7 @@ Authorization: Bearer YOUR_API_KEY
 Authorization: Basic base64(api_key:password)
 ```
 
-[Learn more about authentication ’](/api/authentication)
+[Learn more about authentication ï¿½](/api/authentication)
 
 ## Environments
 
@@ -324,7 +297,6 @@ Official SDKs for popular languages:
 Need help with the API?
 
 - [API Documentation](/api/rest)
-- [GraphQL Playground](/graphql)
 - [Discord Community](https://discord.gg/cartino)
 - [GitHub Issues](https://github.com/cartinophp/cartino/issues)
 
@@ -342,40 +314,5 @@ Need help with the API?
   #description
   Complete reference for all REST endpoints
   :::
-
-  :::card
-  ---
-  icon: i-simple-icons-graphql
-  to: /api/graphql
-  ---
-  #title
-  Try GraphQL
-
-  #description
-  Flexible queries with GraphQL API
-  :::
-
-  :::card
-  ---
-  icon: i-lucide-webhook
-  to: /api/webhooks
-  ---
-  #title
-  Setup Webhooks
-
-  #description
-  Real-time event notifications
-  :::
-
-  :::card
-  ---
-  icon: i-lucide-alert-circle
-  to: /api/errors
-  ---
-  #title
-  Error Handling
-
-  #description
-  Handle errors gracefully
-  :::
+::
 ::
