@@ -24,7 +24,7 @@ Cartino provides a complete set of Blade components and templates for building y
   :::card
   ---
   icon: i-lucide-layout-template
-  to: /storefront/templates
+  to: /storefront
   ---
   #title
   Page Templates
@@ -36,7 +36,7 @@ Cartino provides a complete set of Blade components and templates for building y
   :::card
   ---
   icon: i-lucide-package
-  to: /storefront/components
+  to: /storefront
   ---
   #title
   Blade Components
@@ -48,7 +48,7 @@ Cartino provides a complete set of Blade components and templates for building y
   :::card
   ---
   icon: i-lucide-palette
-  to: /storefront/theming
+  to: /storefront
   ---
   #title
   Theming & Styling
@@ -60,7 +60,7 @@ Cartino provides a complete set of Blade components and templates for building y
   :::card
   ---
   icon: i-lucide-shopping-cart
-  to: /storefront/cart-checkout
+  to: /storefront
   ---
   #title
   Cart & Checkout
