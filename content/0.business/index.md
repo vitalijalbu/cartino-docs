@@ -23,7 +23,7 @@ Cartino is built on three pillars:
 
 1. **🎨 Developer Experience First** - Inspired by Statamic's exceptional DX, Cartino makes building e-commerce enjoyable
 2. **🔧 Modular & Extensible** - Everything is customizable through addons, themes, and blueprints
-3. **🚀 Modern Technology** - Laravel 11, Vue 3, Inertia.js, and cutting-edge tools
+3. **🚀 Modern Technology** - Laravel 12, Vue 3, Inertia.js, and cutting-edge tools
 
 ## Vision Document
 

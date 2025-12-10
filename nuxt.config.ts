@@ -8,6 +8,16 @@ export default defineNuxtConfig({
     'nuxt-og-image',
   ],
 
+  ogImage: {
+    defaults: {
+      component: 'NuxtSeo',
+    },
+  },
+
+  site: {
+    url: 'https://cartino.io',
+  },
+
   devtools: {
     enabled: true
   },

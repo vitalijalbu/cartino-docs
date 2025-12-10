@@ -424,7 +424,7 @@ Title: Cart total calculation incorrect with multiple discounts
 Environment:
 - Cartino: v2.1.0
 - PHP: 8.2
-- Laravel: 11.0
+- Laravel: 12.0
 
 Problem:
 When applying multiple discount codes, the cart total shows

@@ -607,9 +607,3 @@ Generate insights:
 - Anticipate needs
 - Over-deliver on promises
 - Thank loyal customers
-
-## Next Steps
-
-- **[Process Orders](/admin/orders)** - View customer orders
-- **[Create Discounts](/admin/discounts)** - Reward customers
-- **[Email Marketing](/admin/marketing)** - Engage customers

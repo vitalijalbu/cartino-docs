@@ -454,9 +454,3 @@ Find products fast:
 - **Advanced Filters** - Category, price, stock, tags
 - **Saved Filters** - Reuse common searches
 - **Sort Options** - Name, price, date, stock
-
-## Next Steps
-
-- **[Manage Orders](/admin/orders)** - Process customer orders
-- **[Track Inventory](/admin/inventory)** - Monitor stock levels
-- **[Set Up Discounts](/admin/discounts)** - Create promotions

@@ -144,7 +144,7 @@ Built with Modern Stack
   icon: i-simple-icons-laravel
   ---
   #title
-  Laravel 11
+  Laravel 12
 
   #description
   Modern PHP framework with powerful ORM, routing, and ecosystem. Built on solid foundations.

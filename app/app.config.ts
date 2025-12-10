@@ -7,12 +7,15 @@ export default defineAppConfig({
     footer: {
       slots: {
         root: 'border-t border-default',
-        left: 'text-sm text-muted'
+        left: 'text-muted'
       }
     }
   },
   seo: {
     siteName: 'Cartino Documentation'
+  },
+  ogImage: {
+    url: '/images/cover.jpg'
   },
   header: {
     title: '',

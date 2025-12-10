@@ -311,8 +311,3 @@ First of each month:
 4. Clear preferences
 5. Contact support
 
-## Next Steps
-
-- **[Manage Products](/admin/products)** - Update your catalog
-- **[Process Orders](/admin/orders)** - Handle customer orders
-- **[View Reports](/admin/reports)** - Deep dive analytics
