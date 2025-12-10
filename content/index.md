@@ -10,7 +10,8 @@ orientation: horizontal
 ---
 
 #title
-Cartino [E-commerce]{.text-primary} Platform
+CartinoPHP Laravel 
+[E-commerce Platform]{.text-primary} 
 
 #description
 Build powerful, scalable e-commerce applications with Cartino - a headless platform combining Shopify-style product architecture with Laravel flexibility.

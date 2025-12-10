@@ -35,7 +35,7 @@ export default defineAppConfig({
     }]
   },
   footer: {
-    credits: `Cartino E-commerce Platform • © ${new Date().getFullYear()}`,
+    credits: `CartinoPHP E-commerce Platform • © ${new Date().getFullYear()}`,
     colorMode: false,
     links: [{
       'icon': 'i-simple-icons-discord',
