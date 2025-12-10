@@ -54,7 +54,7 @@ Build powerful, scalable e-commerce applications with Cartino - a headless platf
   git clone https://github.com/cartinophp/cartino.git
   
   # Install dependencies
-  composer install && npm install
+  composer install
   
   # Setup and migrate
   php artisan migrate
