@@ -9,9 +9,7 @@ export default defineNuxtConfig({
   ],
 
   ogImage: {
-    defaults: {
-      component: 'NuxtSeo',
-    },
+    enabled: false,
   },
 
   site: {
